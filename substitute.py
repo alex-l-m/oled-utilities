@@ -1,8 +1,15 @@
+from rdkit.Chem.rdchem import KekulizeException
 from rdkit.Chem.rdChemReactions import ReactionFromSmarts
 from rdkit.Chem.AllChem import ConstrainedEmbed
-from rdkit.Chem.rdmolops import SanitizeMol
+from rdkit.Chem.rdmolops import SanitizeMol, AddHs, RemoveHs
+from xtb.ase.calculator import XTB
+from ase.constraints import FixAtoms
+from annotate_rdkit_with_ase import optimize_geometry
 
 def substitute(mol, substitution_string, removal_string):
+
+    mol = RemoveHs(mol)
+
     for atom in mol.GetAtoms():
         atom.SetBoolProp("original", True)
 
@@ -20,11 +27,21 @@ def substitute(mol, substitution_string, removal_string):
 
     subs_mol = subs_results[0][0]
     core = core_results[0][0]
+
+    SanitizeMol(subs_mol)
+
+    subs_mol = AddHs(subs_mol)
+    ConstrainedEmbed(subs_mol, core)
+
+    # Set the "original" property for all atoms
+    # Has to be done after adding hydrogens, or they won't et it
     for atom in subs_mol.GetAtoms():
         if not atom.HasProp("original"):
             atom.SetBoolProp("original", False)
-
-    SanitizeMol(subs_mol)
-    ConstrainedEmbed(subs_mol, core)
+    is_original = [atom.GetBoolProp("original") for atom in subs_mol.GetAtoms()]
+    ase_constraint = FixAtoms(mask = is_original)
+    optimize_geometry(XTB(), subs_mol,
+                      conformation_index = 0,
+                      constraints = [ase_constraint])
 
     return subs_mol
