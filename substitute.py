@@ -15,11 +15,13 @@ def substitute(mol, substitution_string, removal_string):
 
     core_reaction = ReactionFromSmarts(removal_string)
     substitution_reaction = ReactionFromSmarts(substitution_string)
-    core_results = ((mol,))
-    subs_results = ((mol,))
+    core_results = ((mol,),)
+    subs_results = ((mol,),)
     new_core_results = core_reaction.RunReactants([mol])
     new_subs_results = substitution_reaction.RunReactants([mol])
     while len(new_subs_results) > 0:
+        SanitizeMol(new_core_results[0][0])
+        SanitizeMol(new_subs_results[0][0])
         core_results = new_core_results
         subs_results = new_subs_results
         new_core_results = core_reaction.RunReactants([core_results[0][0]])
@@ -29,6 +31,7 @@ def substitute(mol, substitution_string, removal_string):
     core = core_results[0][0]
 
     SanitizeMol(subs_mol)
+    SanitizeMol(core)
 
     subs_mol = AddHs(subs_mol)
     ConstrainedEmbed(subs_mol, core)
