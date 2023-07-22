@@ -86,9 +86,9 @@ def run_three_times(mol, reaction):
         mol = reaction.RunReactants([mol])[0][0]
     return mol
 reactions = [
-    ReactionFromSmarts("[Ir:1]1~[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1~[n:2]:[c:3]~[n:4]:[c:5]~1"),
-    ReactionFromSmarts("[Ir:1]1~[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1~[n:2]:[n:3]~[n:4]:[c:5]~1"),
-    ReactionFromSmarts("[Ir:1]1~[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1~[n:2]:[c:3]~[c:4]:[c:5]~1")
+    ReactionFromSmarts("[Ir:1]1<-[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1<-[n:2]:[c:3]~[n:4]:[c:5]~1"),
+    ReactionFromSmarts("[Ir:1]1<-[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1<-[n:2]:[n:3]~[n:4]:[c:5]~1"),
+    ReactionFromSmarts("[Ir:1]1<-[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1<-[n:2]:[c:3]~[c:4]:[c:5]~1")
 ]
 fac_skeletons = [fac_skeleton] + [run_three_times(fac_skeleton, reaction) for reaction in reactions]
 mer_skeletons = [mer_skeleton] + [run_three_times(mer_skeleton, reaction) for reaction in reactions]
