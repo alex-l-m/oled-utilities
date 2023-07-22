@@ -81,8 +81,6 @@ def skeleton(template, mol):
 fac_skeleton = skeleton(template, fac)
 mer_skeleton = skeleton(template, mer)
 
-template = MolFromSmarts("[Ir]1~n:[*]~[*]:c~1")
-
 def run_three_times(mol, reaction):
     for i in range(3):
         mol = reaction.RunReactants([mol])[0][0]
