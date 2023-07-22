@@ -1,3 +1,4 @@
+import os.path
 from rdkit import Chem
 from rdkit.Chem.rdchem import RWMol
 from rdkit.Chem.rdmolfiles import MolFromMol2File, MolFromSmarts
@@ -55,8 +56,8 @@ def make_bonds_dative(mol, target_elem = "Ir"):
 
     return outmol
 
-fac = make_bonds_dative(MolFromMol2File("OHUZEW.mol2"))
-mer = make_bonds_dative(MolFromMol2File("OHUZIA.mol2"))
+fac = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "OHUZEW.mol2")))
+mer = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "OHUZIA.mol2")))
 
 template = MolFromSmarts("[Ir]1~n:[*]~[*]:c~1")
 
