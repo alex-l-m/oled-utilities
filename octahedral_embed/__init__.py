@@ -57,9 +57,18 @@ def make_bonds_dative(mol, target_elem = "Ir"):
     return outmol
 
 fac = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "OHUZEW.mol2")))
+RemoveStereochemistry(fac)
 mer = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "OHUZIA.mol2")))
+RemoveStereochemistry(mer)
 
 template = MolFromSmarts("[Ir]1~n:[*]~[*]:c~1")
+
+carbene_fac = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "MAXYIU.mol2")))
+RemoveStereochemistry(carbene_fac)
+carbene_mer = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "MAXYOA.mol2")))
+RemoveStereochemistry(carbene_mer)
+
+carbene_template = MolFromSmarts("[Ir]1~[#6]~[*]~[*]~[#6]~1")
 
 # Extract skeletons of a molecule based on a template, keeping coordinates
 # Multiple skeletons because I don't know how to do wildcards
@@ -81,6 +90,9 @@ def skeleton(template, mol):
 fac_skeleton = skeleton(template, fac)
 mer_skeleton = skeleton(template, mer)
 
+carbene_fac_skeleton = skeleton(carbene_template, carbene_fac)
+carbene_mer_skeleton = skeleton(carbene_template, carbene_mer)
+
 def run_three_times(mol, reaction):
     for i in range(3):
         mol = reaction.RunReactants([mol])[0][0]
@@ -90,8 +102,8 @@ reactions = [
     ReactionFromSmarts("[Ir:1]1<-[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1<-[n:2]:[n:3]~[n:4]:[c:5]~1"),
     ReactionFromSmarts("[Ir:1]1<-[n:2]:[n:3]~[c:4]:[c:5]~1>>[Ir:1]1<-[n:2]:[c:3]~[c:4]:[c:5]~1")
 ]
-fac_skeletons = [fac_skeleton] + [run_three_times(fac_skeleton, reaction) for reaction in reactions]
-mer_skeletons = [mer_skeleton] + [run_three_times(mer_skeleton, reaction) for reaction in reactions]
+fac_skeletons = [fac_skeleton] + [run_three_times(fac_skeleton, reaction) for reaction in reactions] + [carbene_fac_skeleton]
+mer_skeletons = [mer_skeleton] + [run_three_times(mer_skeleton, reaction) for reaction in reactions] + [carbene_mer_skeleton]
 
 def octahedral_embed(mol, isomer):
     # Needed for some of the mol2 files I got from CSD
