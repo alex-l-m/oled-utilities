@@ -1,6 +1,6 @@
 import os.path
 from rdkit import Chem
-from rdkit.Chem.rdchem import RWMol
+from rdkit.Chem.rdchem import RWMol, Conformer
 from rdkit.Chem.rdmolfiles import MolFromMol2File, MolFromSmarts
 from rdkit.Chem.AllChem import ConstrainedEmbed
 from rdkit.Chem.rdChemReactions import ReactionFromSmarts
@@ -56,6 +56,17 @@ def make_bonds_dative(mol, target_elem = "Ir"):
 
     return outmol
 
+def transfer_conformation(mol, substruct, conformer = 0):
+    '''Given a molecule, and a second molecule which is a substructure of the
+    first, assign coordinates to the substructure based on the matching part of
+    the original molecule'''
+    match = mol.GetSubstructMatch(substruct)
+    substruct_conformation = Conformer(substruct.GetNumAtoms())
+    for i, index in enumerate(match):
+        point = mol.GetConformer(conformer).GetAtomPosition(index)
+        substruct_conformation.SetAtomPosition(i, point)
+    substruct.AddConformer(substruct_conformation)
+
 fac = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "OHUZEW.mol2")))
 RemoveStereochemistry(fac)
 mer = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "OHUZIA.mol2")))
@@ -67,8 +78,6 @@ carbene_fac = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "MAXYI
 RemoveStereochemistry(carbene_fac)
 carbene_mer = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "MAXYOA.mol2")))
 RemoveStereochemistry(carbene_mer)
-
-carbene_template = MolFromSmarts("[Ir]1~[#6]~[*]~[*]~[#6]~1")
 
 # Extract skeletons of a molecule based on a template, keeping coordinates
 # Multiple skeletons because I don't know how to do wildcards
@@ -90,8 +99,13 @@ def skeleton(template, mol):
 fac_skeleton = skeleton(template, fac)
 mer_skeleton = skeleton(template, mer)
 
-carbene_fac_skeleton = skeleton(carbene_template, carbene_fac)
-carbene_mer_skeleton = skeleton(carbene_template, carbene_mer)
+# Making the carbene skeletons in a completely different way
+# I probably am going to want to do this for all of them
+carbene_skeleton_smarts = "[Ir]135(<-[CH0](~N(~*)~*~2)~N(~*~2)~c~c~1)(<-[CH0](~N(~*)~*~4)~N(~*~4)~c~c~3)(<-[CH0](~N(~*)~*~6)~N(~*~6)~c~c~5)"
+carbene_fac_skeleton = MolFromSmarts(carbene_skeleton_smarts)
+transfer_conformation(carbene_fac, carbene_fac_skeleton)
+carbene_mer_skeleton = MolFromSmarts(carbene_skeleton_smarts)
+transfer_conformation(carbene_mer, carbene_mer_skeleton)
 
 def run_three_times(mol, reaction):
     for i in range(3):
