@@ -132,7 +132,12 @@ def octahedral_embed(mol, isomer):
     finished = False
     for skeleton in skeletons:
         if len(mol.GetSubstructMatch(skeleton)) > 0:
-            ConstrainedEmbed(mol, skeleton)
+            # Carbene embedding with a large template gives output "Could not
+            # triangle bounds smooth molecule" and raises a ValueError. But
+            # with a small template the imidazole is hroribly twisted, probably
+            # because it thinks the atoms are aliphatic. Ignoring smoothing
+            # failures with the large template, it works
+            ConstrainedEmbed(mol, skeleton, ignoreSmoothingFailures = True)
             finished = True
     if not finished:
         raise ValueError("Doesn't match templates")
