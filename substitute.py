@@ -37,7 +37,7 @@ def substitute(mol, substitution_string, removal_string):
     ConstrainedEmbed(subs_mol, core)
 
     # Set the "original" property for all atoms
-    # Has to be done after adding hydrogens, or they won't et it
+    # Has to be done after adding hydrogens, or they won't get it
     for atom in subs_mol.GetAtoms():
         if not atom.HasProp("original"):
             atom.SetBoolProp("original", False)
