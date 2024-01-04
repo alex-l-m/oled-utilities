@@ -34,7 +34,10 @@ def substitute(mol, substitution_string, removal_string):
     SanitizeMol(core)
 
     subs_mol = AddHs(subs_mol)
-    ConstrainedEmbed(subs_mol, core)
+    # Using settings from here:
+    # https://sourceforge.net/p/rdkit/mailman/rdkit-discuss/thread/C761AFBF8DEB604DB8D72CB1B301A1EB21C651DB%40MBX07.ad.oak.ox.ac.uk/#msg32082674
+    # Prevents some cases of "ValueError: Could not embed molecule."
+    ConstrainedEmbed(subs_mol, core, ignoreSmoothingFailures=True, useRandomCoords=True, useTethers=True)
 
     # Set the "original" property for all atoms
     # Has to be done after adding hydrogens, or they won't get it
