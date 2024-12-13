@@ -2,7 +2,7 @@ from rdkit.Chem.rdchem import KekulizeException
 from rdkit.Chem.rdChemReactions import ReactionFromSmarts
 from rdkit.Chem.AllChem import ConstrainedEmbed
 from rdkit.Chem.rdmolops import SanitizeMol, AddHs, RemoveHs
-from xtb.ase.calculator import XTB
+from tblite.ase import TBLite
 from ase.constraints import FixAtoms
 from annotate_rdkit_with_ase import optimize_geometry
 
@@ -46,7 +46,7 @@ def substitute(mol, substitution_string, removal_string):
             atom.SetBoolProp("original", False)
     is_original = [atom.GetBoolProp("original") for atom in subs_mol.GetAtoms()]
     ase_constraint = FixAtoms(mask = is_original)
-    optimize_geometry(XTB(), subs_mol,
+    optimize_geometry(TBLite(), subs_mol,
                       conformation_index = 0,
                       constraints = [ase_constraint])
 
