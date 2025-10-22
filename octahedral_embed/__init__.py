@@ -119,6 +119,27 @@ reactions = [
 fac_skeletons = [fac_skeleton] + [run_three_times(fac_skeleton, reaction) for reaction in reactions] + [carbene_fac_skeleton]
 mer_skeletons = [mer_skeleton] + [run_three_times(mer_skeleton, reaction) for reaction in reactions] + [carbene_mer_skeleton]
 
+# Skeletons for tridentate carbenes
+# I may have to remake these later if I want to control the isomers
+# For now I think it doesn't matter because all the carbene ligands are symmetric?
+# For homoleptic:
+biplet = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "BIPLET.mol2")))
+biplet_skeleton = MolFromSmarts('[Ir]1234(~[#6](~[#7](~[#6])~[#6])~[#7]~c~c~1~c~[#7]~[#6](~[#7](~[#6])~[#6])~2)~[#6](~[#7](~[#6])~[#6])~[#7]~c~c~3~c~[#7]~[#6](~[#7](~[#6])~[#6])~4')
+transfer_conformation(biplet, biplet_skeleton)
+# For heteroleptic, three with counterligands of different size
+soynom = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "SOYNOM.mol2")))
+RemoveStereochemistry(soynom)
+soynom_skeleton = MolFromSmarts('[Ir]1234(~*~*~*~*~1~*~*~*~2)~[#6](~[#7](~[#6])~[#6])~[#7]~c~c~3~c~[#7]~[#6](~[#7](~[#6])~[#6])~4')
+transfer_conformation(soynom, soynom_skeleton)
+uyokur = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "UYOKUR.mol2")))
+uyokur_skeleton = MolFromSmarts('[Ir]1234(~*~*~*~*~*~1~*~*~*~2)~[#6](~[#7](~[#6])~[#6])~[#7]~c~c~3~c~[#7]~[#6](~[#7](~[#6])~[#6])~4')
+transfer_conformation(uyokur, uyokur_skeleton)
+egufiz = make_bonds_dative(MolFromMol2File(os.path.join(__path__[0], "EGUFIZ.mol2")))
+egufiz_skeleton = MolFromSmarts('[Ir]1234(~*~*~*~*~*~1~*~*~*~*~2)~[#6](~[#7](~[#6])~[#6])~[#7]~c~c~3~c~[#7]~[#6](~[#7](~[#6])~[#6])~4')
+transfer_conformation(egufiz, egufiz_skeleton)
+# Homoleptic has to go first, since a later pattern can cover it
+tridentate_skeletons = [biplet_skeleton, soynom_skeleton, uyokur_skeleton, egufiz_skeleton]
+
 def octahedral_embed(mol, isomer):
     # Needed for some of the mol2 files I got from CSD
     # Will not be able to embed with stereochemistry
@@ -127,6 +148,8 @@ def octahedral_embed(mol, isomer):
         skeletons = fac_skeletons
     elif isomer == "mer":
         skeletons = mer_skeletons
+    elif isomer == "tridentate":
+        skeletons = tridentate_skeletons
     else:
         raise ValueError(f"Isomer should be \"mer\" or \"fac\", given {isomer}")
     finished = False
